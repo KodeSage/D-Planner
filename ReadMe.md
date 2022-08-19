@@ -7,6 +7,15 @@
 - `subgraph` folder ✅
 - `frontend` folder  🚧(Understand Contruction)
 
+### Tools and Protocols Used
+- `Polygon Blockchain`: (mumbia testnet)
+- `TheGraph`: (Protocol used for building the subgraph)
+- `Languages`: (Solidity, Typescript, Javascript)
+- `Dev Environment`: (Hardhat Toolbox)
+- `Code Editor`: ( VSCode)
+- `Frontend Toolkits` (React, Next.js, ethers.js, Rainbowkit, Web3.Storage, and The Graph)
+- `Tests` - Mocha and Chai ( 🚧(Understand Contruction))
+
 ### Aim of The DAPP
  - The D-Planner web3-native Eventbrite, except attendees need to deposit Matic to RSVP and will get it back upon them checking in at the event.
  
