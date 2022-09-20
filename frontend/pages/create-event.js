@@ -42,6 +42,7 @@ export default function CreateEvent ()
     } else {
       console.log("Form successfully submitted!");
       let responseJSON = await response.json();
+      console.log( "BHU", responseJSON.cid );
       await createEvent(responseJSON.cid);
     }
     // check response, if success is false, dont take them to success page
@@ -73,6 +74,7 @@ export default function CreateEvent ()
         eventDataCID,
         { gasLimit: 900000 }
       );
+
       setLoading(true);
 console.log("Minting...", txn.hash);
 let wait = await txn.wait();
