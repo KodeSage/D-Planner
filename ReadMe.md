@@ -5,7 +5,7 @@
 ### Completed Files
 - `smartcontract` folder ✅
 - `subgraph` folder ✅
-- `frontend` folder  🚧(Understand Contruction)
+- `frontend` folder  ✅
 
 ### Tools and Protocols Used
 - `Polygon Blockchain`: (mumbia testnet)
@@ -14,7 +14,7 @@
 - `Dev Environment`: (Hardhat Toolbox)
 - `Code Editor`: ( VSCode)
 - `Frontend Toolkits` (React, Next.js, ethers.js, Rainbowkit, Web3.Storage, and The Graph, Moralis)
-- `Tests` - Mocha and Chai ( 🚧(Understand Contruction))
+- `Tests` - Mocha and Chai
 
 ### Aim of The DAPP
  - The D-Planner web3-native Eventbrite, except attendees need to deposit Matic to RSVP and will get it back upon them checking in at the event.
