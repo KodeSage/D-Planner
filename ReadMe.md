@@ -13,7 +13,7 @@
 - `Languages`: (Solidity, Typescript, Javascript)
 - `Dev Environment`: (Hardhat Toolbox)
 - `Code Editor`: ( VSCode)
-- `Frontend Toolkits` (React, Next.js, ethers.js, Rainbowkit, Web3.Storage, and The Graph)
+- `Frontend Toolkits` (React, Next.js, ethers.js, Rainbowkit, Web3.Storage, and The Graph, Moralis)
 - `Tests` - Mocha and Chai ( 🚧(Understand Contruction))
 
 ### Aim of The DAPP
