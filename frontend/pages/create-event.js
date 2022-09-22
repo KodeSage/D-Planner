@@ -5,12 +5,15 @@ import getRandomImage from "../utils/getRandomImage";
 import connectContract from "../utils/connectContract";
 import { ethers } from "ethers";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import Alert from "../components/Alert";
+import UploadFilesToWeb3Storage from "../storageService/Storage";
+import Loader from "../components/Loader"
 
 export default function CreateEvent ()
 {
-  const { data: account } = useAccount();
+  const { address } = useAccount();
+  const { chain, chains } = useNetwork();
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventTime, setEventTime] = useState("");
@@ -23,79 +26,116 @@ export default function CreateEvent ()
   const [loading, setLoading] = useState(null);
   const [eventID, setEventID] = useState(null);
 
-  async function handleSubmit(e) {
+  //Upload Image
+   const [data, setData] = useState(null);
+  const [err, setErr] = useState(false);
+  const [file, setFile] = useState(null);
+
+   function overrideEventDefaults(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+  const onDrop = ( e ) =>
+  {
+    const {
+            dataTransfer: { files }
+        } = e;
+    const { length } = files;
+    const reader = new FileReader();
+    if (length === 0) {
+            return false;
+        }
+        const fileTypes = ["image/jpeg", "image/jpg", "image/png"];
+        const { size, type } = files[0];
+    setData( null );
+     if (!fileTypes.includes(type)) {
+            setErr("File format must be either png or jpg");
+            return false;
+    }
+     if (size / 1024 / 1024 > 15) {
+            setErr("File size exceeded the limit of 15MB");
+            return false;
+        }
+        setErr(false);
+
+        reader.readAsDataURL(files[0]);
+        setFile(files[0])
+        reader.onload = loadEvt => {
+            setData(loadEvt.target?.result);
+        };
+  }
+  async function handleSubmit ( e )
+  {
     e.preventDefault();
-  const body = {
-  name: eventName,
-  description: eventDescription,
-  link: eventLink,
-  image: getRandomImage(),
-    };
-     try {
-    const response = await fetch("/api/store-event-data", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (response.status !== 200) {
-      alert("Oops! Something went wrong. Please refresh and try again.");
-    } else {
-      console.log("Form successfully submitted!");
-      let responseJSON = await response.json();
-      console.log( "BHU", responseJSON.cid );
-      await createEvent(responseJSON.cid);
-    }
-    // check response, if success is false, dont take them to success page
-  } catch (error) {
-    alert(
-      `Oops! Something went wrong. Please refresh and try again. Error ${error}`
-    );
-  }
-    
-
-    console.log("Form submitted", body)
-  }
-   
-  const createEvent = async (cid) => {
-    try
+    if ( file !== null )
     {
-      const dplannerContract = connectContract();
-
-      if ( dplannerContract )
+      const body = {
+        name: eventName,
+        description: eventDescription,
+        link: eventLink,
+        image: file.name,
+      };
+    setLoading(true);
+      try
       {
-        let deposit = ethers.utils.parseEther( refund );
-        let eventDateAndTime = new Date( `${ eventDate } ${ eventTime }` );
-        let eventTimestamp = eventDateAndTime.getTime();
-        let eventDataCID = cid;
-         const txn = await dplannerContract.createNewEvent(
-        eventTimestamp,
-        deposit,
-        maxCapacity,
-        eventDataCID,
-        { gasLimit: 900000 }
-      );
+        const cid = await UploadFilesToWeb3Storage( body, file );
+        console.log( body );
+        if ( cid )
+        {
+          console.log( cid );
+        }
 
-      setLoading(true);
-console.log("Minting...", txn.hash);
-let wait = await txn.wait();
-console.log("Minted -- ", txn.hash);
-setEventID(wait.events[0].args[0]);
-setSuccess(true);
-setLoading(false);
-setMessage("Your event has been created successfully.");
-    } else {
-      console.log("Error getting contract.");
+        if ( cid )
+        {
+          await createEvent(cid)
+        }
+      } catch ( error )
+      {
+        alert(
+          `Oops! Something went wrong. Please refresh and try again. Error ${ error }`
+        );
+      }
     }
-    }catch (error) {
-      
-      setSuccess(false);
-  setMessage(`There was an error creating your event: ${error.message}`);
-  setLoading(false);
-  console.log( error );
-  }
   }
 
   
+   
+ const createEvent = async (cid) => {
+    try {
+      const rsvpContract = connectContract();
+
+      if (rsvpContract) {
+        let deposit = ethers.utils.parseEther(refund);
+        let eventDateAndTime = new Date(`${eventDate} ${eventTime}`);
+        let eventTimestamp = eventDateAndTime.getTime();
+        let eventDataCID = cid;
+
+        const txn = await rsvpContract.createNewEvent(
+          eventTimestamp,
+          deposit,
+          maxCapacity,
+          eventDataCID,
+          { gasLimit: 900000 }
+        );
+        console.log("Minting...", txn.hash);
+        let wait = await txn.wait();
+        console.log("Minted -- ", txn.hash);
+
+        setEventID(wait.events[0].args[0]);
+
+        setSuccess(true);
+        setLoading(false);
+        setMessage("Your event has been created successfully.");
+      } else {
+        console.log("Error getting contract.");
+      }
+    } catch (error) {
+      setSuccess(false);
+      setMessage(`There was an error creating your event: ${error.message}`);
+      setLoading(false);
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     // disable scroll on <input> elements of type number
@@ -107,53 +147,83 @@ setMessage("Your event has been created successfully.");
   });
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+ <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <Head>
         <title>Create your event | web3rsvp</title>
         <meta
           name="description"
           content="Create your virtual event on the blockchain"
         />
-      </Head>
-      <section className="relative py-12">
+      </Head> 
+      <div className="relative py-12">
         {
-  loading && (
+        success && (
     <Alert
-      alertType={"loading"}
-      alertBody={"Please wait"}
+      alertType={"success"}
+      alertBody={message}
       triggerAlert={true}
-      color={"white"}
+      color={"palegreen"}
     />
-  )
+         )
         }
-        {success && (
-          <Alert
-            alertType={"success"}
-            alertBody={message}
-            triggerAlert={true}
-            color={"palegreen"}
-          />
-        ) }
-         {success === false && (
-          <Alert
-            alertType={"failed"}
-            alertBody={message}
-            triggerAlert={true}
-            color={"palevioletred"}
-          />
-        ) }
-         {!success && (
+        {
+         success === false && (
+      <Alert
+      alertType={"failed"}
+      alertBody={message}
+      triggerAlert={true}
+      color={"palevioletred"}
+    />
+         )
+        }
+         {
+         err && (
+      <Alert
+      alertType={"failed"}
+      alertBody={err}
+      triggerAlert={true}
+      color={"palevioletred"}
+    />
+         )
+        }
+        {!success && (
           <h1 className="text-3xl tracking-tight font-extrabold text-gray-900 sm:text-4xl md:text-5xl mb-4">
             Create your virtual event
           </h1>
-        ) }
-        
-        { account && !success && (
-           <form
+         )
+        }
+            {address && !success && (chain.name === "Polygon Mumbai") && (
+          <form
             onSubmit={handleSubmit}
             className="space-y-8 divide-y divide-gray-200"
           >
             <div className="space-y-6 sm:space-y-5">
+              <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:pt-5">
+                <label
+                  htmlFor="eventname"
+                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
+                >
+                 Upload Event Image
+                </label>
+                <div className="mt-1 sm:mt-0 sm:col-span-2">
+                  <div onDragOver={ e => overrideEventDefaults( e ) } onDrop={ e => onDrop( e ) }
+                    onDragEnter={ e => overrideEventDefaults( e ) }
+                    onDragLeave={ e => overrideEventDefaults( e ) }
+                    onDragEnterCapture={ e => overrideEventDefaults( e ) }
+                    className="uploadcard">
+                    { data !== null &&
+                      <div>
+                        <img src={ data?.toString() } />
+                        <button className="deleteButton max-w-lg" onClick={()=>setData(null)}>Remove Image</button>
+                      </div>
+                    }
+                     {data === null && (
+                    <p>Drag and drop image(less than 15MB file)</p>
+                )}
+                  </div>
+                </div>
+              </div> 
               <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:pt-5">
                 <label
                   htmlFor="eventname"
@@ -322,30 +392,61 @@ setMessage("Your event has been created successfully.");
             </div>
           </form>
         ) }
-         {success && eventID && (
-          <div>
-            Success! Please wait a few minutes, then check out your event page{" "}
-            <span className="font-bold">
-              <Link href={`/event/${eventID}`}>here</Link>
-            </span>
-          </div>
-        ) }
-        
-         {!account && (
-          <section className="flex flex-col items-start py-8">
-            <p className="mb-4">Please connect your wallet to create events.</p>
-            <ConnectButton />
-          </section>
-        )}
-     
-         
-        
-
-          {/* <section className="flex flex-col items-start py-8">
-            <p className="mb-4">Please connect your wallet to create events.</p>
-          </section> */}
-
-      </section>
+        {address && !success && ( chain.name !== "Polygon Mumbai" ) && (
+          {/* <div>
+          <h1 className="text-3xl tracking-tight font-extrabold text-red-500  sm:text-4xl md:text-5xl mb-4">
+            WRONG NETWORK !!!!
+            </h1>
+            <div>
+              { chains.map( ( x ) => (
+             isLoading && pendingChainId === x.id ?
+                 <Alert
+      alertType={"loading"}
+      alertBody={"Switching Network..."}
+      triggerAlert={true}
+      color={"purple"}
+            />
+                  :
+                <button
+                    disabled={ !switchNetwork || x.id === activeChain?.id }
+                    className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700"
+          key={x.id}
+          onClick={() => switchNetwork?.(x.id)}
+        >
+         Click Here to Switch Network to {x.name}
+        </button>
+      ))}
+            </div>
+         </div> */}
+         )
+        }
+        {
+      !address && (
+    <section className="flex flex-col items-start py-8">
+      <p className="mb-4">Please connect your wallet to create events.</p>
+      <ConnectButton />
+    </section>
+  )
+        }
+        {
+  success && eventID && (
+    <div>
+      Success! Please wait a few minutes, then check out your event page{" "}
+      <span className="font-bold">
+        <Link href={`/event/${eventID}`}>here</Link>
+      </span>
     </div>
+  )
+}
+        
+      </div>
+  </div>
+       {
+       loading && (
+          <Loader loading={loading} />
+          )
+       }
+</>
+   
   );
 }

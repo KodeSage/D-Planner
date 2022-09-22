@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount, useDisconnect } from "wagmi";
+import { useAccount } from "wagmi";
 import Navmenu from "./Navmenu";
-
 export default function Navbar() {
   const [ mounted, setMounted ] = useState( false );
-   const { data: account } = useAccount();
-    const { disconnect } = useDisconnect();
+  const { address } = useAccount();
 
   useEffect(() => {
-    setMounted(true);
+    setMounted( true );
   }, []);
 
   return (
@@ -32,11 +30,10 @@ export default function Navbar() {
                   Create Event
                 </a>
               </Link>
-               {account ? (
-                <Navmenu account={account} disconnect={() => disconnect()} />
-              ) : (
-                <ConnectButton />
-              )}
+              <ConnectButton />
+              {address && (
+                <Navmenu />
+              ) }
             </div>
           </div>
         </nav>

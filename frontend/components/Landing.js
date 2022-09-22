@@ -14,10 +14,10 @@ export default function Landing({ children }) {
         <div className="w-full md:w-8/12 text-left">
           <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
             <span>Discover what&apos;s happening in the </span>
-            <span className="text-red-600">metaverse</span>
+            <span className="text-green-600">Decentralized Web(metaverse)</span>
           </h1>
           <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-            Find, join, and create virtual events with your web3 frens!
+            Find, join, and create virtual events with your community
           </p>
         </div>
       </section>
