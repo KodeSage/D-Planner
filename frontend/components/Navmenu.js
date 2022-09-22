@@ -1,14 +1,20 @@
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import joinClassNames from "../utils/joinClassNames";
+import { useNetwork } from 'wagmi'
+import { RiArrowDownSLine } from "react-icons/ri";
 
-export default function Navmenu({ account, disconnect }) {
+
+  export default function Navmenu ( )
+  {
+   const { chain, chains } = useNetwork()
   return (
     <Menu as="div" className="relative z-10 inline-block text-left">
       <div>
         <Menu.Button className="inline-flex items-center px-2.5 py-2 rounded-md text-sm font-medium bg-indigo-100 text-indigo-800 w-32 cursor-pointer">
-          <span className="w-12 h-3 mr-1 bg-indigo-400 rounded-full"></span>
-          <p className="text-ellipsis overflow-hidden">{account.address}</p>
+          <span className="w-5 h-3 mr-1 bg-indigo-400 rounded-full"></span>
+          { chain && <p className="text-ellipsis">{ chain.name }</p> }
+          <RiArrowDownSLine size={30} />
         </Menu.Button>
       </div>
       <Transition
@@ -45,19 +51,6 @@ export default function Navmenu({ account, disconnect }) {
                   )}
                 >
                   My Events
-                </a>
-              )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ account }) => (
-                <a
-                  onClick={disconnect}
-                  className={joinClassNames(
-                    account ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                    "block px-4 py-2 text-sm cursor-pointer"
-                  )}
-                >
-                  Log Out
                 </a>
               )}
             </Menu.Item>
