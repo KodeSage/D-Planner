@@ -1,9 +1,10 @@
-module.exports = {
-  images: {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+   images: {
     domains: ["images.unsplash.com", "ipfs.io"],
   },
-   flags: {
-    DEV_SSR: false,
-  },
-  reactStrictMode: false,
-};
+  reactStrictMode: true,
+  swcMinify: true,
+}
+
+module.exports = nextConfig

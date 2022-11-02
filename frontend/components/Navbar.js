@@ -1,15 +1,51 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
 import Navmenu from "./Navmenu";
+import { useAccount, useSignMessage, useNetwork } from 'wagmi';
+// import { signIn, useSession } from 'next-auth/react';
+import axios from 'axios'
 export default function Navbar() {
   const [ mounted, setMounted ] = useState( false );
-  const { address } = useAccount();
+   const { isConnected, address } = useAccount()
+  const { chain } = useNetwork()
+  // const { status } = useSession()
+  const { signMessageAsync } = useSignMessage()
 
+// [...nextauth]
   useEffect(() => {
     setMounted( true );
-  }, []);
+    console.log("IsCOnnected", isConnected)
+    const handleAuth = async () =>
+    {
+      const userData = { address, chain: chain.id, network: 'evm' }
+      // const { data } = await axios.post('/api/request-message', userData, {
+    const { data } = await axios.post('/api/auth/request-message', userData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const message = data.message
+
+      const signature = await signMessageAsync({ message })
+       await signIn('credentials', {
+        message,
+        signature,
+        redirect: false,
+        callbackUrl: '/user',
+      })
+    }
+    if( isConnected) {
+      handleAuth()
+    }
+  }, [isConnected]);
+
+  const getName = async () =>
+  {
+    const response = await axios.get( './api/hello' );
+    console.log( response );
+  }
 
   return (
     mounted && (
@@ -30,10 +66,11 @@ export default function Navbar() {
                   Create Event
                 </a>
               </Link>
-              <ConnectButton />
+                 <ConnectButton />
+              {/* <ConnectButton />
               {address && (
                 <Navmenu />
-              ) }
+              ) } */}
             </div>
           </div>
         </nav>

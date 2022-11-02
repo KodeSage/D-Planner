@@ -1,7 +1,7 @@
 import Layout from "../components/Layout";
 import "../styles/globals.css";
 import '@rainbow-me/rainbowkit/styles.css';
-
+import { SessionProvider } from 'next-auth/react';
 import { getDefaultWallets, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
@@ -20,7 +20,7 @@ const { connectors } = getDefaultWallets({
 });
 
 const wagmiClient = createClient({
-  autoConnect: true,
+  autoConnect: false,
   connectors,
   provider,
 });
@@ -35,12 +35,15 @@ const darTheme = darkTheme( {
 
 export default function MyApp({ Component, pageProps }) {
   return (
- <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider chains={chains} theme={darTheme}>
+    <WagmiConfig client={ wagmiClient }>
+      <SessionProvider session={ pageProps.session } refetchInterval={ 0 }>
+        <RainbowKitProvider chains={chains} theme={darTheme}>
         <Layout>
           <Component {...pageProps} />
         </Layout>
       </RainbowKitProvider>
+      </SessionProvider>
     </WagmiConfig>
   );
 }
+ 
