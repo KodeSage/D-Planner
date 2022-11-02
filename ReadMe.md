@@ -17,7 +17,7 @@
 - `Tests` - Mocha and Chai
 
 ### Aim of The DAPP
- - The D-Planner web3-native Eventbrite, except attendees need to deposit Matic to RSVP and will get 99% back it back upon them checking in at the event and the event owner.
+ - The D-Planner web3-native Eventbrite, except attendees need to deposit Matic to RSVP and will get 99% back it back upon them checking in at the event and 1% will go of your deposit will go to the event owner the event owner.
  
 ### Consequences
  - After a period of 3 days, if the attendees that checked in at the event did not withdraw thier matic tokens , the owner of the event will withdrwal thier matic tokens
