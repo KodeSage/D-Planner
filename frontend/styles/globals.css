@@ -18,6 +18,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
 .uploadcard {
   margin: 1.5rem;
   padding: 1.5rem;
@@ -29,7 +30,7 @@
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
   /* min-width: 600px;*/
-  min-height: 400px; 
+  min-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -52,6 +53,7 @@
   font-size: 1.25rem;
   line-height: 1.5;
 }
+
 .deleteButton {
   background-color: #eb4324;
   border: 0;
@@ -62,21 +64,22 @@
   border-radius: 20px;
 }
 
-    .blspinner {
-      position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.4);
-    }
-  .lspinner {
-      margin: 20rem auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: all 450ms ease;
-    }
+.blspinner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.lspinner {
+  margin: 20rem auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 450ms ease;
+}
 
 
 input[type="number"]::-webkit-inner-spin-button,
