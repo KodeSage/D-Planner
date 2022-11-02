@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 
 contract DPlanner {
-       struct CreateEvent { 
+       struct CreateStandardEvent { 
        bytes32 eventId; // Id of the event
        string eventDataCID; // IPFS hash of event name, and details of the event
        address eventOwner; // Address of the Creator of the event
@@ -15,7 +15,7 @@ contract DPlanner {
        bool paidOut;
    }
 
-    mapping(bytes32 => CreateEvent) public idToEvent; // ID to track individual Events
+    mapping(bytes32 => CreateStandardEvent) public identityToEvent; // ID to track individual Events
 
 
     event NewEventCreated(
@@ -48,12 +48,11 @@ event DepositsPaidOut(bytes32 eventID);
         maximumCapacity
     )
     );
-    require(idToEvent[eventId].eventTimestamp == 0, "ALREADY REGISTERED");
+    require(identityToEvent[eventId].eventTimestamp == 0, "ALREADY REGISTERED FOR THE EVENT");
 
     address[] memory confirmedRSVPs;    
     address[] memory claimedRSVPs;
-
-    idToEvent[eventId] = CreateEvent(
+    identityToEvent[eventId] = CreateStandardEvent(
     eventId,
     eventDataCID,
     msg.sender,
@@ -76,7 +75,7 @@ emit NewEventCreated(
 }
 
 function createNewRSVP( bytes32 eventId) external payable {
-    CreateEvent storage myEvent = idToEvent[eventId];
+    CreateStandardEvent storage myEvent = identityToEvent[eventId];
 
     require(msg.value == myEvent.deposit, "NOT Enough Token to register for this event");
     require(block.timestamp <= myEvent.eventTimestamp, "Event Already happened");
@@ -92,8 +91,7 @@ function createNewRSVP( bytes32 eventId) external payable {
 }
 
 function confirmAttendee(bytes32 eventId, address attendee) public {
-
-    CreateEvent storage myEvent = idToEvent[eventId];
+   CreateStandardEvent storage myEvent = identityToEvent[eventId];
     require(msg.sender == myEvent.eventOwner, "NOT AUTHORIZED");
     address rsvpConfirm;
 
@@ -110,20 +108,25 @@ function confirmAttendee(bytes32 eventId, address attendee) public {
     }
 
     require(myEvent.paidOut == false, "ALREADY PAID OUT");
-
+    
     myEvent.claimedRSVPs.push(attendee);
-    (bool sent,) = attendee.call{value: myEvent.deposit}("");
+    uint taxfee =  myEvent.deposit/100; //Collect 1% tax fee
+    uint bundle = myEvent.deposit - taxfee;
+    (bool sent,) = attendee.call{value: bundle}("");
     if (!sent) {
         myEvent.claimedRSVPs.pop();
     }
 
     require(sent, "Failed to send Ether");
+    (bool receiver,) = myEvent.eventOwner.call{value: taxfee}('');
+
+    require(receiver, "Failed to send  to ether eventowner");
 
     emit ConfirmedAttendee(eventId, attendee);
 }
 
 function confirmAllAttendees(bytes32 eventId) external {
-    CreateEvent memory myEvent = idToEvent[eventId];
+    CreateStandardEvent memory myEvent = identityToEvent[eventId];
     require(msg.sender == myEvent.eventOwner, "NOT AUTHORIZED");
 
     for (uint8 i = 0; i < myEvent.confirmedRSVPs.length; i++) {
@@ -132,11 +135,11 @@ function confirmAllAttendees(bytes32 eventId) external {
 }
 
 function withdrawUnclaimedDepositsfromEvents(bytes32 eventId) external {
-    CreateEvent memory myEvent = idToEvent[eventId];
+    CreateStandardEvent memory myEvent = identityToEvent[eventId];
 
     require(!myEvent.paidOut, "ALREADY PAID OUT");
     require(
-        block.timestamp >= (myEvent.eventTimestamp + 7 days),
+        block.timestamp >= (myEvent.eventTimestamp + 2 days),
         "TOO EARLY"
     );
     require(msg.sender == myEvent.eventOwner, "MUST BE EVENT OWNER");
