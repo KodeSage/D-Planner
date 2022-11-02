@@ -30,7 +30,7 @@ export default function Dashboard({ page, isUpcoming, children }) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <Head>
         <title>My Dashboard | web3rsvp</title>
-        <meta name="description" content="Manage your events and RSVPs" />
+        <meta name="description" content="Manage your Events here in Dplanner" />
       </Head>
       <div className="flex flex-wrap py-8">
         <DashboardNav page={page} />

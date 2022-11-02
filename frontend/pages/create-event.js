@@ -150,7 +150,7 @@ export default function CreateEvent ()
     <>
  <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <Head>
-        <title>Create your event | web3rsvp</title>
+        <title>Create your Community Events</title>
         <meta
           name="description"
           content="Create your virtual event on the blockchain"
