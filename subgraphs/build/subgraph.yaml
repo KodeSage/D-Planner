@@ -1,0 +1,46 @@
+specVersion: 0.0.5
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: DPlanner
+    network: mumbai
+    source:
+      address: "0xA9F4b76b9D4Fc4085CEB55fBAa1B809620B90bF7"
+      abi: DPlanner
+      startBlock: 31614300
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Event
+        - Account
+        - RSVP
+        - Confirmation
+      abis:
+        - name: DPlanner
+          file: DPlanner\abis\DPlanner.json
+      eventHandlers:
+        - event: ConfirmedAttendee(bytes32,address)
+          handler: handleConfirmedAttendee
+        - event: DepositsPaidOut(bytes32)
+          handler: handleDepositsPaidOut
+        - event: NewEventCreated(bytes32,address,uint256,uint256,uint256,string)
+          handler: handleNewEventCreated
+        - event: NewRSVP(bytes32,address)
+          handler: handleNewRSVP
+      file: DPlanner\DPlanner.wasm
+templates:
+  - name: EventMetadata
+    kind: file/ipfs
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: DPlanner\DPlanner.wasm
+      handler: handleMetadata
+      entities:
+        - EventMetadata
+      abis:
+        - name: DPlanner
+          file: EventMetadata\abis\DPlanner.json

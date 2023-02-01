@@ -1,0 +1,19 @@
+{
+  "name": "dplanner",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ kodesage/dplanner",
+    "create-local": "graph create --node http://localhost:8020/ kodesage/dplanner",
+    "remove-local": "graph remove --node http://localhost:8020/ kodesage/dplanner",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 kodesage/dplanner",
+    "test": "graph test"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.37.7",
+    "@graphprotocol/graph-ts": "0.29.1",
+     "@protofire/subgraph-toolkit": "^0.1.2"
+  },
+  "devDependencies": { "matchstick-as": "0.5.0" }
+}
